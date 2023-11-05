@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask_restful import Resource, Api
+from flask_restful import Api
 from llm import init_all_chain, get_abstract, summarize_and_similarity
 from scholar import Scholar
 
