@@ -1,15 +1,11 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import { UserButton } from '@clerk/nextjs'
+import React, {useState, useEffect} from 'react'
+import NavBar from '@/comp/NavBar'
 
-const inter = Inter({ subsets: ['latin'] });
-
-export default function Home() {
+function index() {
   return (
     <div>
-      <UserButton afterSignOutUrl='/'>
-
-      </UserButton>
+      <NavBar></NavBar>
     </div>
   )
 }
+export default index
