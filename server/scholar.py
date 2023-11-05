@@ -1,11 +1,9 @@
-from flask_restful import Resource
 import requests
 from serpapi import GoogleSearch
-from selenium import webdriver
 import PyPDF2
 import os
 
-class Scholar(Resource):
+class Scholar():
     def get_search_results(query):
         
         params = {
@@ -20,27 +18,57 @@ class Scholar(Resource):
 
         return organic_results
 
-    def get_paper_contents(search_result):
-        url = search_result['resources'][0]['link']
-
-        headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
-        page = requests.get(url, headers=headers)
-
-        with open("search_result.pdf", 'wb') as my_data:
-            my_data.write(page.content)
-
-
-        reader = PyPDF2.PdfReader('search_result.pdf') 
+    def get_paper_contents(search_results):
         text = ""
-        for page in reader.pages:
-            text+= page.extract_text()
+
+        for search_result in search_results:
+            if 'resources' in search_result:
+                if 'link' in search_result['resources'][0]:
+                    url = search_result['resources'][0]['link']
+
+                    headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
+                    page = requests.get(url, headers=headers)
+
+                    with open("search_result.pdf", 'wb') as my_data:
+                        my_data.write(page.content)
+
+                    try:
+                        reader = PyPDF2.PdfReader('search_result.pdf') 
+                        text = ""
+                        for page in reader.pages:
+                            text+= page.extract_text()
+                    except:
+                        continue
+                    break
+
+        if not text:
+            return
 
         os.remove("search_result.pdf")
-        return text
+
+        try:
+            if 'publication_info' in search_result:
+                if 'authors' in search_result['publication_info']:
+                    authors = [author['name'] for author in search_result['publication_info']['authors']]
+                else:
+                    authors = [search_result['publication_info']['summary'].split(',')[0]]
+            else:
+                authors = []
+        except:
+            authors = []
+
+        return {"title": search_result['title'], "authors": authors, "text": text}
+    
+    def get_all_papers(keyword, demographics):
+        all_papers = []
+        for demographic in demographics: #demographics should be in the form [race, gender, age, conditions]
+            result = Scholar.get_search_results(f"{keyword} and {demographic}")
+            paper_content = Scholar.get_paper_contents(result)
+            if paper_content:
+                all_papers.append(paper_content)
+        return all_papers
+
 
         
-
-results = Scholar.get_search_results("Covid-19 vaccine efficacy in African American females with asthma")
-paper = Scholar.get_paper_contents(results[0])
-print(results)
-print(paper)
+papers = Scholar.get_all_papers("Polycystic Ovary Syndrome", ["african american", "teen", "depression"])
+print(papers)
