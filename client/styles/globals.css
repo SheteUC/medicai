@@ -157,3 +157,81 @@ body {
   margin-right: 400px;
   margin-top: 100px;
 }
+.box2 {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  margin-left: 400px;
+  margin-right: 400px;
+  margin-top: 50px;
+}
+/* About.css */
+
+.about-container {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 40px;
+  margin-top: 100px;
+}
+
+.about-title {
+  font-size: 3em;
+  margin-bottom: 20px;
+  animation: fadeIn 2s ease-in-out;
+}
+
+.team-members {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.member-card {
+  background-color: #13445d;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  flex: 1;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.member-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.member-name {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+member-description {
+  margin-top: 10px;
+  font-size: 1.2em;
+}
+
+.website-aim {
+  margin-top: 40px;
+}
+
+.website-aim h2 {
+  font-size: 2em;
+}
+
+.website-aim p {
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

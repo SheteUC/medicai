@@ -8,6 +8,7 @@ class MyForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      result: null,
       name: '',
       ethnicity: '',
       gender: '',
@@ -50,15 +51,15 @@ class MyForm extends Component {
       additionalComments,
       patientcond,
     } = this.state;
-  
+
     // Convert boolean values to strings
     const diabetesString = hasDiabetes ? 'diabetes' : null;
     const hypertensionString = hasHypertension ? 'hypertension' : null;
     const heartDiseaseString = hasHeartDisease ? 'heart disease' : null;
     const asthmaString = hasAsthma ? 'asthma' : null;
     const cancerString = hasCancer ? 'cancer' : null;
-    const strokeString = hasStroke ? 'stroke' :  null;
-  
+    const strokeString = hasStroke ? 'stroke' : null;
+
     // Create the demographics list
     const demographics = [
       name,
@@ -73,7 +74,7 @@ class MyForm extends Component {
       strokeString,
       patientcond,
     ];
-  
+
     // Create the JSON object
     let jsonData = {
       "query": additionalComments,
@@ -93,21 +94,13 @@ class MyForm extends Component {
           'Access-Control-Allow-Origin': '*',
         },
         body: jsonData,
-        }
+      }
       );
-      // hide form
-      this.flags.hide = true;
 
-      // Hide the form by adding hidden style to myForm
-      document.getElementById('myForm').hidden = true;  
-
-      // Show the loading animation
-      <LoadingOutlined />
 
       if (data.status === 200) {
         // Render the results page
-        this.flags.submitted = true;
-        console.log(`Submitted: ${this.flags.submitted}`);
+        this.setState({ result: data.data })
 
       } else {
         console.error('Failed to submit the data');
@@ -116,7 +109,7 @@ class MyForm extends Component {
       console.error('Error while sending the POST request:', error);
     }
   };
-  
+
   // handleSubmit = async (event) => {
   //   event.preventDefault();
   //   const {
@@ -134,7 +127,7 @@ class MyForm extends Component {
   //     patientcond,
   //   } = this.state;
 
-  
+
   //   console.log(this.state);
   //   // Prepare jsonData
   //   const jsonData = {
@@ -147,7 +140,7 @@ class MyForm extends Component {
   //           demographics.splice(i, 1);
   //         }
   //       }
-  
+
   //   // Send a POST request
   //   try {
   //     // const response = await axios.post("http://localhost:5000/submit", jsonData, {
@@ -162,7 +155,7 @@ class MyForm extends Component {
   //       'Access-Control-Allow-Origin': '*',
   //     },
   //   });
-  
+
   //     console.log(response);
   //     if (response.status === 200) {
   //       // Use React Router's history to navigate
@@ -176,22 +169,132 @@ class MyForm extends Component {
   //     // Consider adding user notification of error here
   //   }
   // };
-  
+
   render() {
+    // if (this.state.result) {
+    //   return (
+    //     <>
+    //       {/*JSON.stringify(this.state.result, null, 2)*/}
+
+    //       <p className='font-bold text-xl'>Summary</p>
+    //       <p>{this.state.result?.summary}</p>
+    //       {
+    //         this.state.result?.map((inferenced) => (
+    //           <div>
+    //             <p className='font-bold text-xl'>{inferenced?.authors.join(", ")}</p>
+    //             <p>{inferenced?.summary}</p>
+    //             <p>Cosine similarity score: {inferenced?.similarity}</p>
+    //             <a href={inferenced?.link}>Link to article</a>
+    //           </div>
+    //         ))
+    //       }
+    //     </>
+    //   )
+    // }
+
+    if (this.state.result) {
+      return (
+        <div className="max-w-4xl mx-auto p-5">
+          
+          {/* The outer div has a max-width of 4xl, is centered with mx-auto, and has padding of 5 */}
+          
+          {/* Optional: If you would like to keep the JSON.stringify for debugging, you could uncomment it and style it */}
+          {/* <pre className="bg-gray-100 p-3 rounded my-4">
+            {JSON.stringify(this.state.result, null, 2)}
+          </pre> */}
+    
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden my-4">
+            {/* This div creates a card-like container with a white background, shadow for depth, and rounded corners */}
+    
+            <div className="px-6 py-4">
+              {/* Padding within the card */}
+    
+              <p className='font-bold text-2xl text-indigo-600'>Summary</p>
+              {/* Summary title with bold font, larger size, and indigo color */}
+    
+              <p className="text-gray-700 text-base">
+                {this.state.result?.summary}
+              </p>
+              {/* Summary text with base size and gray color */}
+            </div>
+    
+            {this.state.result?.map((inferenced, index) => (
+              <div key={index} className="px-6 py-4 border-t border-gray-200">
+                {/* Each item is separated by a top border line */}
+                
+                <p className='font-bold text-xl text-indigo-500'>{inferenced?.authors.join(", ")}</p>
+                {/* Author names with bold font, large size, and indigo color */}
+    
+                <p className="text-gray-600">{inferenced?.summary}</p>
+                {/* Inferenced summary text with a slightly darker gray */}
+    
+                <p className="text-sm text-indigo-400">Cosine similarity score: {inferenced?.similarity}</p>
+                {/* Cosine similarity score with small size and indigo color */}
+    
+                <a href={inferenced?.link} className="text-blue-500 hover:text-blue-600">
+                  Link to article
+                </a>
+                {/* Link with blue color that darkens on hover */}
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }<div className="max-w-4xl mx-auto p-5">
+          
+          {/* The outer div has a max-width of 4xl, is centered with mx-auto, and has padding of 5 */}
+          
+          {/* Optional: If you would like to keep the JSON.stringify for debugging, you could uncomment it and style it */}
+          {/* <pre className="bg-gray-100 p-3 rounded my-4">
+            {JSON.stringify(this.state.result, null, 2)}
+          </pre> */}
+    
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden my-4">
+            {/* This div creates a card-like container with a white background, shadow for depth, and rounded corners */}
+    
+            <div className="px-6 py-4">
+              {/* Padding within the card */}
+    
+              <p className='font-bold text-2xl text-indigo-600'>Summary</p>
+              {/* Summary title with bold font, larger size, and indigo color */}
+    
+              <p className="text-gray-700 text-base">
+                {this.state.result?.summary}
+              </p>
+              {/* Summary text with base size and gray color */}
+            </div>
+    
+            {this.state.result?.map((inferenced, index) => (
+              <div key={index} className="px-6 py-4 border-t border-gray-200">
+                {/* Each item is separated by a top border line */}
+                
+                <p className='font-bold text-xl text-indigo-500'>{inferenced?.authors.join(", ")}</p>
+                {/* Author names with bold font, large size, and indigo color */}
+    
+                <p className="text-gray-600">{inferenced?.summary}</p>
+                {/* Inferenced summary text with a slightly darker gray */}
+    
+                <p className="text-sm text-indigo-400">Cosine similarity score: {inferenced?.similarity}</p>
+                {/* Cosine similarity score with small size and indigo color */}
+    
+                <a href={inferenced?.link} className="text-blue-500 hover:text-blue-600">
+                  Link to article
+                </a>
+                {/* Link with blue color that darkens on hover */}
+              </div>
+            ))}
+          </div>
+        </div>
+    
+
     return (
-      
+
       <div>
         <NavBar></NavBar>
-        
+
         <div
           id="myForm"
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '155vh',
-            width: '100%',
-          }}
+          className='flex flex-col justify-center items-center gap-3 mt-24'
         >
           {/* {
             if (submitted) {
@@ -337,7 +440,7 @@ class MyForm extends Component {
             </div>
             <div className="mb-4">
               <label htmlFor="additionalComments" className="block text-sm font-medium text-gray-700">
-                Additional Comments:
+                Query:
               </label>
               <textarea
                 id="additionalComments"
@@ -361,22 +464,21 @@ class MyForm extends Component {
                 style={{ resize: 'none', height: '200px' }}
               ></textarea>
             </div>
-            
-              <button
-                id="myButton"
-                type="submit"
-                className="w-full px-4 py-2 text-white bg-indigo-500 rounded-md hover:bg-indigo-600 focus:ring focus:ring-indigo-300"
-                style={{ backgroundColor: '#13445d' }}
-              >
-                Submit
-              </button>
-            
+
+            <button
+              id="myButton"
+              type="submit"
+              className="w-full px-4 py-2 text-white bg-indigo-500 rounded-md hover:bg-indigo-600 focus:ring focus:ring-indigo-300"
+              style={{ backgroundColor: '#13445d' }}
+            >
+              Submit
+            </button>
+
           </form>
-          
         </div>
-        
+
       </div>
-    
+
     );
   }
 }

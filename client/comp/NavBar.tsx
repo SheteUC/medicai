@@ -9,7 +9,7 @@ function NavBar() {
           <Image src={image} alt="logo" className="navbar-logo" width={50} height={50} />
           <b>Medic.ai</b>
         </div>
-        
+
         <ul>
           <li>
             <a href="/" className="nav-link">Home</a>
@@ -18,7 +18,7 @@ function NavBar() {
             <a href="/form" className="nav-link">Form</a>
           </li>
           <li>
-            <a href="/results" className="nav-link">Results</a>
+            <a href="/about" className="nav-link">About</a>
           </li>
         </ul>
       </div>
