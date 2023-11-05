@@ -1,85 +1,112 @@
-import { LikeOutlined, MessageOutlined, StarOutlined } from '@ant-design/icons';
-import React from 'react';
-import { Avatar, List, Space } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Button, List, Skeleton } from 'antd';
 
+interface DataType {
+  gender?: string;
+  name: {
+    title?: string;
+    first?: string;
+    last?: string;
+  };
+  email?: string;
+  picture: {
+    large?: string;
+    medium?: string;
+    thumbnail?: string;
+  };
+  nat?: string;
+  loading: boolean;
+}
 
-const data = Array.from({ length: 23 }).map((_, i) => ({
-  href: 'https://ant.design',
-  title: `ant design part ${i}`,
-  avatar: `https://xsgames.co/randomusers/avatar.php?g=pixel&key=${i}`,
-  description:
-    'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-  content:
-    'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-}));
+const count = 3;
+const fakeDataUrl = `https://randomuser.me/api/?results=${count}&inc=name,gender,email,nat,picture&noinfo`;
 
-const IconText = ({ icon, text }: { icon: React.FC; text: string }) => (
-  <Space>
-    {React.createElement(icon)}
-    {text}
-  </Space>
-);
+const App: React.FC = () => {
+  const [initLoading, setInitLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<DataType[]>([]);
+  const [list, setList] = useState<DataType[]>([]);
 
-const App: React.FC = () => (
-<div style={{
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center', // This centers the list vertically in the container
-  minHeight: '100vh', // This makes the container take up at least the full viewport height
-  backgroundColor: '#f0f2f5', // Sets a background color for the entire page (or container)
-  alignItems: 'center', // This centers the content horizontally
-}}>
-  <h1 style={{
-    margin: '0 0 20px 0', // Adds space below the heading
-    fontSize: '2rem', // Sets the size of the heading text
-    color: '#1890ff', // Sets the color of the heading text
-  }}>
-    Your List Title Here
-  </h1>
-  <div style={{
-    padding: '20px',
-    maxWidth: '800px',
-    width: '100%', // This ensures that the div does not exceed the width of its parent
-    backgroundColor: '#ffffff',
-    borderRadius: '8px',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-    marginBottom: '20px', // Adds some space below the list
-  }}>
-    <List
-      itemLayout="vertical"
-      size="large"
-      pagination={{
-        onChange: (page) => {
-          console.log(page);
-        },
-        pageSize: 3,
-        size: 'small',
-      }}
-      dataSource={data}
-      renderItem={(item) => (
-        <List.Item
-          key={item.title}
-          actions={[
-            <IconText icon={StarOutlined} text="156" key="list-vertical-star-o" />,
-            <IconText icon={LikeOutlined} text="156" key="list-vertical-like-o" />,
-            <IconText icon={MessageOutlined} text="2" key="list-vertical-message" />,
-          ]}
-          style={{
-            paddingLeft: '20px',
-          }}
-        >
-          <List.Item.Meta
-            title={<a href={item.href} style={{ fontSize: '1.2em', fontWeight: '500', color: '#1890ff' }}>{item.title}</a>}
-            description={<div style={{ marginBottom: '0.5em' }}>{item.description}</div>}
-          />
-          <div style={{ marginTop: '10px' }}>{item.content}</div>
-        </List.Item>
-      )}
-    />
-  </div>
-</div>
+  useEffect(() => {
+    fetch(fakeDataUrl)
+      .then((res) => res.json())
+      .then((res) => {
+        setInitLoading(false);
+        setData(res.results);
+        setList(res.results);
+      });
+  }, []);
 
-);
+  const onLoadMore = () => {
+    setLoading(true);
+    setList(
+      data.concat([...new Array(count)].map(() => ({ loading: true, name: {}, picture: {} }))),
+    );
+    fetch(fakeDataUrl)
+      .then((res) => res.json())
+      .then((res) => {
+        const newData = data.concat(res.results);
+        setData(newData);
+        setList(newData);
+        setLoading(false);
+        window.dispatchEvent(new Event('resize'));
+      });
+  };
 
+  const loadMore =
+    !initLoading && !loading ? (
+      <div
+        style={{
+          textAlign: 'center',
+          marginTop: 12,
+          height: 32,
+          lineHeight: '32px',
+        }}
+      >
+        <Button onClick={onLoadMore}>loading more</Button>
+      </div>
+    ) : null;
+
+  return (
+    <>
+      <style>
+        {`
+          .demo-loadmore-list {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .load-more-button {
+            text-align: center;
+            margin-top: 12px;
+            height: 32px;
+            line-height: 32px;
+          }
+        `}
+      </style>
+      <List
+        className="demo-loadmore-list"
+        loading={initLoading}
+        itemLayout="horizontal"
+        loadMore={loadMore}
+        dataSource={list}
+        renderItem={(item) => (
+          <List.Item
+            actions={[<a key="list-loadmore-edit">edit</a>, <a key="list-loadmore-more">more</a>]}
+          >
+            <Skeleton avatar title={false} loading={item.loading} active>
+              <List.Item.Meta
+                avatar={<Avatar src={item.picture.large} />}
+                title={<a href="https://ant.design">{item.name?.last}</a>}
+                description="Ant Design, a design language for background applications, is refined by Ant UED Team"
+              />
+              <div>content</div>
+            </Skeleton>
+          </List.Item>
+        )}
+      />
+    </>
+  );
+};
 
 export default App;
