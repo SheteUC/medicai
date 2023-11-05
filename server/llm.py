@@ -1,11 +1,12 @@
 import os
 import re
 from dotenv import load_dotenv
+from scipy.spatial.distance import cosine
 from langchain.llms.cohere import Cohere
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import TokenTextSplitter
 from langchain.chains import LLMChain
-
+from langchain.embeddings import CohereEmbeddings
 from ibm_watson_machine_learning.foundation_models.extensions.langchain import WatsonxLLM
 from ibm_watson_machine_learning.foundation_models.utils.enums import DecodingMethods
 from ibm_watson_machine_learning.metanames import GenTextParamsMetaNames as GenParams
@@ -17,13 +18,16 @@ from scholar import Scholar
 load_dotenv()
 
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
+embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY)
+
 
 def init_get_abstract_chain(llm, verbose=False):
     template = """
     You are a superintelligent AI trained for medical situations specifically.
     You task is to receive the 2000 tokens of a medical research PDF in plaintext 
     and summarize it the whole thing based on the abstract of the paper.
-    Your summary should only be at most two sentences long.
+    Your summary should only be at most two sentences long. Do not include anything other
+    than your summary.
     Here is the text:
     {section}
     Your summary is:
@@ -36,28 +40,15 @@ def init_get_abstract_chain(llm, verbose=False):
 
     return LLMChain(prompt=prompt, llm=llm, verbose=verbose)
 
-def init_relevancy_chain(llm, verbose=False):
-    template = """
-    You are a superintelligent AI trained for medical situations specifically.
-    You task is to receive a summary of a medical research paper and a specific
-    patient's demographics information, and determine whether the research paper
-    is relevant to the patient's situation in percentage based solely on
-    how the keywords in there match with the patients' demographic information.
-    If you cannot determine the relevance, return ?%.
-    Here is the patient's information:
-    {bioinfo}
-    The paper's summary:
-    {summary}
-    Remember, you should only return a number between 0%. and 100%., or ?%. if you cannot.
-    The paper relevance to the patient's situation is:
-    """
-
-    prompt = PromptTemplate(
-        template=template,
-        input_variables=["bioinfo", "summary"]
-    )
-
-    return LLMChain(prompt=prompt, llm=llm, verbose=verbose)
+def cosine_similarity(text, keywords):
+    text_embedding = embeddings.embed_query(text)
+    total = 0
+    for keyword in keywords:
+        keyword_embedding = embeddings.embed_query(keyword)
+        similarity = 1 - cosine(text_embedding, keyword_embedding)
+        total += similarity
+    return total / len(keywords)
+    
 
 def init_all_chain(verbose=False):
     params = {
@@ -72,11 +63,11 @@ def init_all_chain(verbose=False):
     model = Model(
         model_id="google/flan-ul2",
         credentials={
-            "apikey": "bGSfVEYB5i38neXBnEX7SiOela5wA59C06jFmfAxemxt",
+            "apikey": os.environ.get("WATSONX_API_KEY"),
             "url": "https://us-south.ml.cloud.ibm.com"
         },
         params=params,
-        project_id="ba796275-8f1d-49a9-8a1c-b8650fa2bf39"
+        project_id=os.environ.get("WATSONX_PROJ_ID")
     )
 
     llm_dict = {
@@ -85,11 +76,9 @@ def init_all_chain(verbose=False):
     }
     
     get_abstract_chain = init_get_abstract_chain(llm=llm_dict["get_abstract"], verbose=verbose)
-    similarity_chain = init_relevancy_chain(llm=llm_dict["relevancy"], verbose=verbose)
 
     return {
-        "get_abstract": get_abstract_chain,
-        "relevancy": similarity_chain
+        "get_abstract": get_abstract_chain
     }
 
 def get_abstract(llm_chain, section):
@@ -99,23 +88,13 @@ def get_abstract(llm_chain, section):
         })
     raise ValueError()
 
-def get_relevancy(llm_chain, bio_information, summary):
-    if llm_chain:
-        return llm_chain.run({
-            "bioinfo": bio_information,
-            "summary": summary
-        })
-    raise ValueError()
-
 def summarize_and_relevancy(llm_dict, bio_information, text):
-    bio_information = ", ".join(bio_information)
     summary = get_abstract(llm_chain=llm_dict["get_abstract"], section=text)
-    similarity = get_relevancy(llm_chain=llm_dict["relevancy"], bio_information=bio_information, summary=summary)
-    return summary, similarity
+    similarity = cosine_similarity(text=summary, keywords=bio_information)
+    return summary, round(similarity, 2)
 
 def text_chunker(text, chunk_size=2000):
     text_splitter = TokenTextSplitter(
-        # Set a really small chunk size, just to show.
         chunk_size=chunk_size,
         chunk_overlap=0,
     )
@@ -134,9 +113,8 @@ if __name__ == "__main__":
     papers = Scholar.get_all_papers("Polycystic Ovary Syndrome", demographics=demographics)
     paper = papers[0]
     # get the fist 2000 tokens after the first occurence of "abstract"
-    text_chunked = get_abstract_text_chunk(text=paper["text"], chunk_size=1000)
-    abstract, relevancy = summarize_and_relevancy(llm_dict=chain_dict, bio_information=demographics, text=text_chunked)
+    text_chunked = get_abstract_text_chunk(text=paper["text"], chunk_size=500)
+    abstract, similarity = summarize_and_relevancy(llm_dict=chain_dict, bio_information=demographics, text=text_chunked)
     print(abstract)
-    print(relevancy)
-              
+    print(similarity)
     
