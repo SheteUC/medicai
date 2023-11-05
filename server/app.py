@@ -15,7 +15,9 @@ def submit():
       parse it and pass it to the LLM chain.
       Return the result from the LLM chain.
       """
+      print(request.method)
       if request.method == "POST":
+            print(request.get_json())
             data = request.get_json()
             llm_dict = init_all_chain(verbose=False)
             papers = Scholar.get_all_papers(data["query"], demographics=data["demographics"])

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 import NavBar from '@/comp/NavBar'
 
 class MyForm extends Component {
@@ -26,26 +27,77 @@ class MyForm extends Component {
     this.setState({ [name]: inputValue });
   };
 
-  handleSubmit = (event) => {
+  handleSubmit = async (event) => {
     event.preventDefault();
     const {
       name,
       ethnicity,
       gender,
       age,
+      hasDiabetes,
+      hasHypertension,
+      hasHeartDisease,
+      hasAsthma,
+      hasCancer,
+      hasStroke,
       additionalComments,
-      conditions,
       patientcond,
     } = this.state;
-    console.log('Name:', name);
-    console.log('Ethnicity:', ethnicity);
-    console.log('Gender:', gender);
-    console.log('Age:', age);
-    console.log('Pre-existing Conditions:', conditions);
-    console.log('Additional Comments:', additionalComments);
-    console.log('patientcond', patientcond);
+  
+    // Convert boolean values to strings
+    const diabetesString = hasDiabetes ? 'diabetes' : null;
+    const hypertensionString = hasHypertension ? 'hypertension' : null;
+    const heartDiseaseString = hasHeartDisease ? 'heart disease' : null;
+    const asthmaString = hasAsthma ? 'asthma' : null;
+    const cancerString = hasCancer ? 'cancer' : null;
+    const strokeString = hasStroke ? 'stroke' :  null;
+  
+    // Create the demographics list
+    const demographics = [
+      name,
+      ethnicity,
+      gender,
+      age,
+      diabetesString,
+      hypertensionString,
+      heartDiseaseString,
+      asthmaString,
+      cancerString,
+      strokeString,
+      patientcond,
+    ];
+  
+    // Create the JSON object
+    let jsonData = {
+      query: additionalComments,
+      demographics,
+    };
+    for (let i = demographics.length - 1; i >= 0; i--) {
+      if (demographics[i] === null) {
+        demographics.splice(i, 1);
+      }
+    }
+    console.log(jsonData);
+    // Send a POST request
+    try {
+      const response = await fetch('http://localhost:5000/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData),
+      });
+  
+      if (response.ok) {
+        // Redirect the user to the "/results" page
+        window.location.href = '/results';
+      } else {
+        console.error('Failed to submit the data');
+      }
+    } catch (error) {
+      console.error('Error while sending the POST request:', error);
+    }
   };
-
   render() {
     return (
       
@@ -56,7 +108,7 @@ class MyForm extends Component {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            height: '180vh',
+            height: '155vh',
             width: '100%',
           }}
         >
@@ -220,19 +272,22 @@ class MyForm extends Component {
                 style={{ resize: 'none', height: '200px' }}
               ></textarea>
             </div>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 text-white bg-indigo-500 rounded-md hover:bg-indigo-600 focus:ring focus:ring-indigo-300"
-              style={{ backgroundColor: '#13445d' }}
-            >
-              Submit
-            </button>
+            <a href="/results">
+              <button
+                id="myButton"
+                className="w-full px-4 py-2 text-white bg-indigo-500 rounded-md hover:bg-indigo-600 focus:ring focus:ring-indigo-300"
+                style={{ backgroundColor: '#13445d' }}
+              >
+                Submit
+              </button>
+            </a>
           </form>
+          
         </div>
+        
       </div>
+      
     );
   }
 }
-
 export default MyForm;
-            
