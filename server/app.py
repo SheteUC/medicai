@@ -25,24 +25,16 @@ def submit():
       Return the result from the LLM chain.
       """
       if request.method == "POST":
-            print(request.get_json())
             data = request.get_json()["body"]
             llm_dict = init_all_chain(verbose=False)
             papers = Scholar.get_all_papers(data["query"], demographics=data["demographics"])
-            if len(papers) == 0:
-                  return {
-                        "summary": "No papers found",
-                        "similarity": 0
-                  }
-            paper = papers[0]
-            text_chunked = get_abstract_text_chunk(text=paper["text"], chunk_size=500)
-            summary, similarity = summarize_and_relevancy(llm_dict=llm_dict, bio_information=data["demographics"], text=text_chunked)
-            print(summary)
-            print(similarity)
-            return {
-                  "summary": summary,
-                  "similarity": similarity
-            }
+            paper_summaries = []
+            for paper in papers:
+                  text_chunked = get_abstract_text_chunk(text=paper["text"], chunk_size=500)
+                  summary, similarity = summarize_and_relevancy(llm_dict=llm_dict, bio_information=data["demographics"], text=text_chunked)
+                  paper_summaries.append({"summary": summary, "similarity": similarity, "link": paper["link"], "title": paper["title"], "authors": paper["authors"]})
+
+            return paper_summaries
 
 
 

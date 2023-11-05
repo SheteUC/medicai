@@ -3,6 +3,7 @@ import re
 from dotenv import load_dotenv
 from scipy.spatial.distance import cosine
 from langchain.llms.cohere import Cohere
+from langchain.llms.openai import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import TokenTextSplitter
 from langchain.chains import LLMChain
@@ -18,6 +19,7 @@ from scholar import Scholar
 load_dotenv()
 
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 embeddings = CohereEmbeddings(cohere_api_key=COHERE_API_KEY)
 
 
@@ -51,30 +53,8 @@ def cosine_similarity(text, keywords):
     
 
 def init_all_chain(verbose=False):
-    """
-    params = {
-        GenParams.MAX_NEW_TOKENS: 50,
-        GenParams.MIN_NEW_TOKENS: 1,
-        GenParams.DECODING_METHOD: DecodingMethods.SAMPLE,
-        GenParams.TEMPERATURE: 0.5,
-        GenParams.TOP_K: 50,
-        GenParams.TOP_P: 1
-    }
-
-    model = Model(
-        model_id="google/flan-ul2",
-        credentials={
-            "apikey": os.environ.get("WATSONX_API_KEY"),
-            "url": "https://us-south.ml.cloud.ibm.com"
-        },
-        params=params,
-        project_id=os.environ.get("WATSONX_PROJ_ID")
-    )
-    """
-
     llm_dict = {
-        "get_abstract": Cohere(cohere_api_key=COHERE_API_KEY),
-        "relevancy": Cohere(cohere_api_key=COHERE_API_KEY)
+        "get_abstract": OpenAI(openai_api_key=OPENAI_API_KEY),
     }
     
     get_abstract_chain = init_get_abstract_chain(llm=llm_dict["get_abstract"], verbose=verbose)
@@ -122,4 +102,3 @@ if __name__ == "__main__":
     abstract, similarity = summarize_and_relevancy(llm_dict=chain_dict, bio_information=demographics, text=text_chunked)
     print(abstract)
     print(similarity)
-    
