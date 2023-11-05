@@ -11,12 +11,6 @@ load_dotenv()
 
 COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 
-llm_dict = {
-    "get_abstract": Cohere(cohere_api_key=COHERE_API_KEY),
-    "summarize": Cohere(cohere_api_key=COHERE_API_KEY),
-    "similarity": Cohere(cohere_api_key=COHERE_API_KEY)
-}
-
 def init_get_abstract_chain(llm, verbose=False):
     template = """
     You are a superintelligent AI trained for medical situations specifically.
@@ -75,7 +69,13 @@ def init_similarity_chain(llm, verbose=False):
 
     return LLMChain(prompt=prompt, llm=llm, verbose=verbose)
 
-def init_all_chain(llm_dict, verbose=False):
+def init_all_chain(verbose=False):
+    llm_dict = {
+        "get_abstract": Cohere(cohere_api_key=COHERE_API_KEY),
+        "summarize": Cohere(cohere_api_key=COHERE_API_KEY),
+        "similarity": Cohere(cohere_api_key=COHERE_API_KEY)
+    }
+    
     get_abstract_chain = init_get_abstract_chain(llm=llm_dict["get_abstract"], verbose=verbose)
     summarize_chain = init_summarize_chain(llm=llm_dict["summarize"], verbose=verbose)
     similarity_chain = init_similarity_chain(llm=llm_dict["similarity"], verbose=verbose)
@@ -131,7 +131,7 @@ def get_abstract_text_chunk(text, chunk_size=2000):
 
 if __name__ == "__main__":
     demographics = ["african american", "teen", "depression"]
-    chain_dict = init_all_chain(llm_dict=llm_dict, verbose=True)
+    chain_dict = init_all_chain(verbose=True)
     papers = Scholar.get_all_papers("Polycystic Ovary Syndrome", demographics=demographics)
     paper = papers[0]
     # get the fist 2000 tokens after the first occurence of "abstract"
