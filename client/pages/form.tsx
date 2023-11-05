@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import NavBar from '@/comp/NavBar'
+import axios from 'axios';
+import UserList from './userlist';
 
 class MyForm extends Component {
   constructor(props) {
@@ -19,6 +21,10 @@ class MyForm extends Component {
       additionalComments: '',
       patientcond: '',
     };
+    this.flags = {
+      submitted: false,
+      hide: false,
+    };
   }
 
   handleInputChange = (event) => {
@@ -28,6 +34,7 @@ class MyForm extends Component {
   };
 
   handleSubmit = async (event) => {
+    console.log(`Submitting: ${this.flags.submitted}`);
     event.preventDefault();
     const {
       name,
@@ -69,8 +76,8 @@ class MyForm extends Component {
   
     // Create the JSON object
     let jsonData = {
-      query: additionalComments,
-      demographics,
+      "query": additionalComments,
+      "demographics": demographics,
     };
     for (let i = demographics.length - 1; i >= 0; i--) {
       if (demographics[i] === null) {
@@ -80,17 +87,28 @@ class MyForm extends Component {
     console.log(jsonData);
     // Send a POST request
     try {
-      const response = await fetch('http://localhost:5000/submit', {
-        method: 'POST',
+      const data = await axios.post("http://localhost:5000/submit", {
         headers: {
           'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
         },
-        body: JSON.stringify(jsonData),
-      });
-  
-      if (response.ok) {
-        // Redirect the user to the "/results" page
-        window.location.href = '/results';
+        body: jsonData,
+        }
+      );
+      // hide form
+      this.flags.hide = true;
+
+      // Hide the form by adding hidden style to myForm
+      document.getElementById('myForm').hidden = true;  
+
+      // Show the loading animation
+      <LoadingOutlined />
+
+      if (data.status === 200) {
+        // Render the results page
+        this.flags.submitted = true;
+        console.log(`Submitted: ${this.flags.submitted}`);
+
       } else {
         console.error('Failed to submit the data');
       }
@@ -98,12 +116,75 @@ class MyForm extends Component {
       console.error('Error while sending the POST request:', error);
     }
   };
+  
+  // handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   const {
+  //     name,
+  //     ethnicity,
+  //     gender,
+  //     age,
+  //     hasDiabetes,
+  //     hasHypertension,
+  //     hasHeartDisease,
+  //     hasAsthma,
+  //     hasCancer,
+  //     hasStroke,
+  //     additionalComments,
+  //     patientcond,
+  //   } = this.state;
+
+  
+  //   console.log(this.state);
+  //   // Prepare jsonData
+  //   const jsonData = {
+  //     query: additionalComments,
+  //     demographics: demographics,
+  //   };
+
+  //   for (let i = demographics.length - 1; i >= 0; i--) {
+  //         if (demographics[i] === null) {
+  //           demographics.splice(i, 1);
+  //         }
+  //       }
+  
+  //   // Send a POST request
+  //   try {
+  //     // const response = await axios.post("http://localhost:5000/submit", jsonData, {
+  //     //   headers: {
+  //     //     'Content-Type': 'application/json',
+  //     //     'Access-Control-Allow-Origin': '*',
+  //     //   }
+  //     // });
+  //     const response = await axios.post("http://localhost:5000/submit", jsonData, {
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Access-Control-Allow-Origin': '*',
+  //     },
+  //   });
+  
+  //     console.log(response);
+  //     if (response.status === 200) {
+  //       // Use React Router's history to navigate
+  //       this.props.history.push('/results');
+  //     } else {
+  //       console.error('Failed to submit the data');
+  //       // Consider adding user notification of failure here
+  //     }
+  //   } catch (error) {
+  //     console.error('Error while sending the POST request:', error);
+  //     // Consider adding user notification of error here
+  //   }
+  // };
+  
   render() {
     return (
       
       <div>
         <NavBar></NavBar>
+        
         <div
+          id="myForm"
           style={{
             display: 'flex',
             justifyContent: 'center',
@@ -112,6 +193,14 @@ class MyForm extends Component {
             width: '100%',
           }}
         >
+          {/* {
+            if (submitted) {
+              // Hide loading animation
+              <LoadingOutlined />
+
+              <UserList /> {}
+            }
+          } */}
           <form
             className="max-w-md p-4 bg-white rounded-lg shadow-lg"
             onSubmit={this.handleSubmit}
@@ -272,21 +361,22 @@ class MyForm extends Component {
                 style={{ resize: 'none', height: '200px' }}
               ></textarea>
             </div>
-            <a href="/results">
+            
               <button
                 id="myButton"
+                type="submit"
                 className="w-full px-4 py-2 text-white bg-indigo-500 rounded-md hover:bg-indigo-600 focus:ring focus:ring-indigo-300"
                 style={{ backgroundColor: '#13445d' }}
               >
                 Submit
               </button>
-            </a>
+            
           </form>
           
         </div>
         
       </div>
-      
+    
     );
   }
 }

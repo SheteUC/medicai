@@ -51,6 +51,7 @@ def cosine_similarity(text, keywords):
     
 
 def init_all_chain(verbose=False):
+    """
     params = {
         GenParams.MAX_NEW_TOKENS: 50,
         GenParams.MIN_NEW_TOKENS: 1,
@@ -69,6 +70,7 @@ def init_all_chain(verbose=False):
         params=params,
         project_id=os.environ.get("WATSONX_PROJ_ID")
     )
+    """
 
     llm_dict = {
         "get_abstract": Cohere(cohere_api_key=COHERE_API_KEY),
