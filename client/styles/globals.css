@@ -2,26 +2,236 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+/* Global styles */
+body {
+  background-color: #333;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+/* Navbar styles */
+.navbar {
+  background-color: #13445d;
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  transition: background-color 0.3s;
+}
+
+.navbar-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-left: 20px;
+}
+
+.navbar ul {
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.navbar li {
+  margin-right: 20px;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 20px;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+
+.navbar b {
+  position: dynamic;
+  text-decoration: none;
+  color: #fff;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.navbar a:hover {
+  color: #13445d;
+}
+
+.navbar:hover {
+  background-color: #0d2e3e;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  margin-left: 20px; /* Or your preferred spacing */
+}
+
+.navbar-brand b {
+  margin-left: 10px; /* Adjust as needed for space between logo and text */
+}
+
+/* Homepage styles */
+.homepage-container {
+  background-color: #333;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.content {
+  text-align: center;
+}
+
+.title {
+  font-size: 8em;
+  margin-bottom: 20px;
+  animation: fadeIn 2s ease-in-out;
+  animation: moveTitle 3s infinite ease-in-out;
+}
+
+.description {
+  font-size: 1.5em;
+  margin-top: 10px;
+  margin-left: 50px;
+  margin-right: 50px;
+  animation: fadeIn 2s ease-in-out;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #13445d;
+  color: white;
+  text-decoration: none;
+  font-size: 1.2em;
+  border: 2px solid white;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn:hover {
+  background-color: #333;
+  transform: scale(1.05);
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@keyframes moveTitle {
+  0% {
+    transform: translateX(-3px);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  100% {
+    transform: translateX(-3px);
+  }
+}
+
+/* Box styles */
+.box {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  margin-left: 400px;
+  margin-right: 400px;
+  margin-top: 100px;
+}
+.box2 {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  border-radius: 10px;
+  margin-left: 400px;
+  margin-right: 400px;
+  margin-top: 50px;
+}
+/* About.css */
+
+.about-container {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 40px;
+  margin-top: 100px;
+}
+
+.about-title {
+  font-size: 3em;
+  margin-bottom: 20px;
+  animation: fadeIn 2s ease-in-out;
+}
+
+.team-members {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.member-card {
+  background-color: #13445d;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  flex: 1;
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.member-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.member-name {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+member-description {
+  margin-top: 10px;
+  font-size: 1.2em;
+}
+
+.website-aim {
+  margin-top: 40px;
+}
+
+.website-aim h2 {
+  font-size: 2em;
+}
+
+.website-aim p {
+  font-size: 1.2em;
+  margin-top: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

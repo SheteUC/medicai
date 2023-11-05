@@ -1,0 +1,50 @@
+/* UserList.module.css */
+
+/* Scoped list container */
+.listContainer {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  
+  /* Scoped loading more button container */
+  .loadMoreButton {
+    text-align: center;
+    margin-top: 12px;
+    height: 32px;
+    line-height: 32px; /* Assuming you want this to be a number, not a string */
+  }
+  
+  /* Scoped list item */
+  .listItem {
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  /* Scoped actions link */
+  .actionLink {
+    margin-right: 8px;
+    color: #1890ff;
+  }
+  
+  /* Scoped avatar */
+  .avatar {
+    background-color: #f0f0f0;
+  }
+  
+  /* Scoped title link */
+  .titleLink {
+    color: #545454;
+    font-weight: 500;
+  }
+  
+  /* Scoped description */
+  .description {
+    font-size: 14px;
+    color: #888888;
+  }
+  
+  /* Scoped content */
+  .content {
+    margin-top: 16px;
+  }
+  

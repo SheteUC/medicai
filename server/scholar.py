@@ -60,7 +60,7 @@ class Scholar():
         except:
             authors = []
 
-        return {"title": search_result['title'], "authors": authors, "text": text}
+        return {"title": search_result['title'], "authors": authors, "text": text, "link": search_result['link']}
 
     def get_all_papers(keyword, demographics):
         all_papers = []
