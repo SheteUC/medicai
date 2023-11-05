@@ -29,7 +29,7 @@ def init_get_abstract_chain(llm, verbose=False):
     You task is to receive the 2000 tokens of a medical research PDF in plaintext 
     and summarize it the whole thing based on the abstract of the paper.
     Your summary should only be at most two sentences long. Do not include anything other
-    than your summary.
+    than your summary. The summary shuld caters to the patient demographic of {demographics}.
     Here is the text:
     {section}
     Your summary is:
@@ -37,7 +37,7 @@ def init_get_abstract_chain(llm, verbose=False):
 
     prompt = PromptTemplate(
         template=template,
-        input_variables=["section"]
+        input_variables=["section", "demographics"],
     )
 
     return LLMChain(prompt=prompt, llm=llm, verbose=verbose)
@@ -63,15 +63,16 @@ def init_all_chain(verbose=False):
         "get_abstract": get_abstract_chain
     }
 
-def get_abstract(llm_chain, section):
+def get_abstract(llm_chain, section, bio_information):
     if llm_chain:
         return llm_chain.run({
-            "section": section
+            "section": section,
+            "demographics": bio_information,
         })
     raise ValueError()
 
 def summarize_and_relevancy(llm_dict, bio_information, text):
-    summary = get_abstract(llm_chain=llm_dict["get_abstract"], section=text)
+    summary = get_abstract(llm_chain=llm_dict["get_abstract"], section=text, bio_information=bio_information)
     similarity = cosine_similarity(text=summary, keywords=bio_information)
     return summary, round(similarity, 2)
 
