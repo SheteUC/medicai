@@ -1,11 +1,9 @@
 import React, {useState, useEffect} from 'react'
+import NavBar from '../components/navbar';
 
-function index() {
+function result() {
   return (
-    <div>
-      
-    </div>
+    <NavBar />
   )
 }
-
-export default index
+export default result
