@@ -1,10 +1,8 @@
 from flask import Flask, request
-from flask_restful import Api
-from llm import init_all_chain, get_abstract, summarize_and_similarity
+from llm import init_all_chain, summarize_and_relevancy, get_abstract_text_chunk
 from scholar import Scholar
 
 app = Flask(__name__)
-api = Api(app)
 
 @app.route('/')
 def hello_world():
@@ -22,8 +20,8 @@ def submit():
             llm_dict = init_all_chain(verbose=False)
             papers = Scholar.get_all_papers(data["query"], demographics=data["demographics"])
             paper = papers[0]
-            abstract = get_abstract(llm_chain=llm_dict["get_abstract"], section=paper["abstract"])
-            summary, similarity = summarize_and_similarity(llm_dict=llm_dict, bio_information=data["demographics"], text=abstract)
+            text_chunked = get_abstract_text_chunk(text=paper["text"], chunk_size=500)
+            summary, similarity = summarize_and_relevancy(llm_dict=llm_dict, bio_information=data["demographics"], text=text_chunked)
             return {
                   "summary": summary,
                   "similarity": similarity
