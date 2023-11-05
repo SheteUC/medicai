@@ -102,9 +102,12 @@ def text_chunker(text, chunk_size=2000):
 
 def get_abstract_text_chunk(text, chunk_size=2000):
     abstract = re.search(r"abstract", text, re.IGNORECASE)
-    text = text[abstract.start():]
-    text_chunked = text_chunker(text=text, chunk_size=chunk_size)[0]
-    return text_chunked
+    if abstract:
+        text = text[abstract.start():]
+        text_chunked = text_chunker(text=text, chunk_size=chunk_size)[0]
+        return text_chunked
+    
+    return text_chunker(text=text, chunk_size=chunk_size)[0]
 
 
 if __name__ == "__main__":

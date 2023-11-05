@@ -22,6 +22,8 @@ def submit():
             paper = papers[0]
             text_chunked = get_abstract_text_chunk(text=paper["text"], chunk_size=500)
             summary, similarity = summarize_and_relevancy(llm_dict=llm_dict, bio_information=data["demographics"], text=text_chunked)
+            print(summary)
+            print(similarity)
             return {
                   "summary": summary,
                   "similarity": similarity
@@ -31,4 +33,4 @@ def submit():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000)
+    app.run(host='127.0.0.1', port=5000, debug=True)
