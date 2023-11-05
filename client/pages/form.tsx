@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import NavBar from '../components/navbar';
+import NavBar from '@/comp/NavBar'
 
 class MyForm extends Component {
   constructor(props) {
@@ -48,6 +48,7 @@ class MyForm extends Component {
 
   render() {
     return (
+      
       <div>
         <NavBar></NavBar>
         <div
